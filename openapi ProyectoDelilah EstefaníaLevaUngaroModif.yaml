@@ -1,0 +1,454 @@
+openapi: 3.0.0
+info:
+  description: "Esta API permite hacer pedidos a el restaurant Delilah,ver sus platos,registrarse,loguearse y si tenes permisos de administrador: podes agregar platos,eliminarlos,modificarlos; actualizar estado del pedido,etc"
+  version: "1.0.0"
+  title: "API Restaurant Delilah"
+
+tags:
+- name: "Restaurant"
+  description: "Todo lo que puedes hacer con esta API"
+  
+
+paths:
+  /login:
+    post:
+      tags:
+      - "Usuario"
+      summary: "Loguearse en el sitio"
+     
+      
+      parameters:
+      - in: query
+        name: "body"
+        required: true
+        schema:
+          example: {"usuario": "estefi2020","contrasenia" : "contraseña"}
+      responses:
+        "200":
+          description: "Usuario correcto"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                    token:
+                      type: string
+                      example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c3VhcmlvIjoidGl6aTIwMjAiLCJjb250cmFzZW5pYSI6ImNvbnRyYXNlw7FhIiwiaWF0IjoxNTg4Mzk4NjM0fQ.-3kNUoaDiHl7T-O-5FxmOALp-nrVKzHK9xA29OoGC1k"
+        "404":
+            description: "Usuario o contraseña incorrectos"
+                   
+                      
+  /registro:
+    post:
+      tags:
+      - "Usuario"
+      summary: "Registrarse"
+      
+      
+      parameters:
+      - in: query
+        name: "body"
+        required: true
+        schema:
+          $ref: '#/components/schemas/REGISTROREQUEST'
+      responses:
+        "200":
+          description: "Usuario correcto"
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/REGISTROREQUEST'
+                  
+   
+  /users:
+    get:
+      tags:
+      - "Usuario"
+      summary: "Obtener todos los usuarios,necesita permisos especiales"
+      
+      responses:
+        "200":
+          description: "Trae lista de usuarios"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/REGISTROREQUEST'
+         
+                  
+                      
+       
+    
+  /productos:
+    get:
+      tags:
+      - "Productos"
+      summary: "Trae una lista de los productos"
+      responses:
+        "200":
+          description: "Trae lista de productos"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PRODUCTOS'
+                  
+    post:
+      tags:
+      - "Productos"
+      summary: "Agrega un producto a la lista,necesita permisos especiales"
+        
+      parameters:
+      - in: query
+        name: "body"
+        required: true
+        schema:
+          $ref: '#/components/schemas/PRODUCTOS'
+      responses:
+        "200":
+          description: "Producto agregado"
+            
+  
+  /productos/{id}:
+    get:
+      tags:
+      - "Productos"
+      summary: "Trae un producto por su id"
+      parameters:
+      - in: path
+        name: "id"
+        required: true
+        schema:
+          type: integer
+          example: 3
+      responses:
+        "200":
+          description: "Trae producto correspondiente al id"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    id:
+                      type: integer
+                      example: 3
+                    nombre:
+                      type: string
+                      example: "Pizza"
+                    precio:
+                      type: integer
+                      example: 300
+                      
+        "404": 
+          description: "No encontrado"
+    put:
+      tags:
+      - "Productos"
+      summary: "Modifica un producto existente,necesita permisos especiales"
+      parameters:
+      - in: path
+        name: "id"
+        required: true
+        schema:
+          type: integer
+          example: 3
+      - in: query
+        name: "Datos de reemplazo" 
+        required: true
+        schema:
+          $ref: '#/components/schemas/PRODUCTOS'
+        
+      responses:
+        "200":
+          description: "Producto modificado con éxito"
+    delete:
+      tags:
+      - "Productos"
+      summary: "Eliminar productos a través de su id,necesita permisos especiales"
+      parameters:
+      - in: path
+        name: "id"
+        required: true
+        schema:
+          type: integer
+          example: 3
+      responses:
+        "200":
+          description: "Producto eliminado con éxito"
+        
+    
+  /pedidos:
+    post:
+      tags:
+      - "Pedidos"
+      summary: "Crea un nuevo pedido"
+      parameters:
+      - in: query
+        name: "body"
+        required: true
+        schema:
+          example: {"id_usuario" : "1","hora_pedido" : "22:30","id_estado": "1","id_forma_pago" : "2"}
+      responses:
+        "200":
+          description: "Pedido agregado "
+         
+  /items:
+    post:
+      tags:
+      - "Pedidos"
+      summary: "Agregar productos y cantidades al pedido "
+      parameters:
+      - in: query
+        name: "body"
+        required: true
+        schema:
+          example: {"id_prod" : "1","cantidad_producto" : "3","id_pedido": "1"}
+      responses:
+        "200":
+          description: "Items pedido agregados "
+  /pedidos/{id}:
+    delete:
+      tags:
+      - "Pedidos"
+      summary: "Eliminar pedidos a través de su id,necesita permisos especiales"
+      parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: integer
+          example: 3
+      responses:
+        "200":
+          description: "Pedido borrado con éxito"
+    
+  /actualizar_pedidos/{id}:
+    put:
+      tags:
+      - "Pedidos"
+      summary: "Actualizar el estado de un pedido con su id,necesita permisos especiales"
+      parameters:
+      - in: path
+        name: "id"
+        required: true
+        schema:
+          type: integer
+          example: 3
+      - in: path
+        name: "Datos de reemplazo" 
+        required: true
+        schema:
+          example: {"id_estado":"3"}
+      responses:
+        "200":
+          description: "Estado del pedido actualizado"
+  /carrito-cliente/{id}:
+    get:
+      tags:
+      - "Vista de pedidos"
+      summary: "Permite al cliente ver su pedido a través del id del pedido "
+      parameters:
+      - in: path
+        name: "id"
+        required: true
+        schema:
+          type: integer
+          example: 3
+      responses:
+        "200":
+          description: "Trae pedido correspondiente al id"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    id:
+                      type: integer
+                      example: 3
+                    nombre:
+                      type: string
+                      example: "Pizza"
+                    precio:
+                      type: integer
+                      example: 300
+                    total:
+                      type: integer
+                      example: 300
+                      
+        "404": 
+          description: "No encontrado"
+  /historial/{id}:
+    get:
+      tags:
+      - "Vista de pedidos"
+      summary: "Permite al cliente seguir su pedido a través del id del pedido"
+      parameters:
+      - in: path
+        name: "id"
+        required: true
+        schema:
+          type: integer
+          example: 3
+      responses:
+        "200":
+          description: "Trae pedido correspondiente al id para seguir el estado de dicho pedido"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    estado:
+                      type: string
+                      example: "en preparación"
+                    nombre:
+                      type: string
+                      example: "Pizza"
+                    precio:
+                      type: integer
+                      example: 300
+                    total:
+                      type: integer
+                      example: 300
+                    direccion:
+                      type: string
+                      example: "Pellegrini 2020"
+                      
+        "404": 
+          description: "No encontrado"
+  /admin-detalle/{id}:
+    get: 
+      tags:
+      - "Vista de pedidos"
+      summary: "Permite al administrador,a través del id del pedido, tener una copia del pedido del cliente con detalles de su interés.Necesita permisos especiales "
+      parameters:
+      - in: path
+        name: "id"
+        required: true
+        schema:
+          type: integer
+          example: 3
+        
+      
+      responses:
+        "200":
+          description: "Trae pedido correspondiente al id para seguir el estado de dicho pedido"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  properties:
+                    forma_pago:
+                      type: string
+                      example: "Efectivo"
+                    estado:
+                      type: string
+                      example: "En preparación"
+                    nombre:
+                      type: string
+                      example: "Pizza"
+                    precio:
+                      type: integer
+                      example: 300
+                    total:
+                      type: integer
+                      example: 300
+                    nombreUsuario:
+                      type: string
+                      example: "Estefanía Ungaro"
+                    direccion:
+                      type: string
+                      example: "Pellegrini 2020"
+        
+  /admin-vista-pedidos:
+    get:
+      tags:
+      - "Vista de pedidos"
+      summary: "Permite al administrador ver todos los pedidos.Necesita permisos especiales"
+      responses:
+        "200":
+          description: "Trae todos los pedidos"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    estado:
+                      type: string
+                      example: "en preparación"
+                    idPedido:
+                      type: integer
+                      example: 3
+                    hora:
+                      type: string
+                      format: date-time
+                      example: "22:30"
+                    nombre:
+                      type: string
+                      example: "Pizza"
+                    precio:
+                      type: integer
+                      example: 300
+                    total:
+                      type: integer
+                      example: 300
+                    direccion:
+                      type: string
+                      example: "Pellegrini 123"
+                    nombreUsuario: 
+                      type: string
+                      example: "Estefanía Ungaro"
+                    forma_pago:
+                      type: string
+                      example: "Efectivo"
+                      
+components:
+  schemas:
+    REGISTROREQUEST:
+      title: REGISTROREQUEST
+      required:
+      - username
+      - fullname
+      - email
+      - telefono
+      - direccion
+      - contrasenia
+      type: object
+      properties: 
+        username:
+          type: string
+        fullname:
+          type: string
+        email: 
+          type: string
+        telefono:
+          type: integer
+        direccion: 
+          type: string
+        contrasenia:
+          type: string
+      example: 
+        username: estefi2020
+        fullname: Estefanía Ungaro
+        email: estefi@gmail.com
+        telefono: 123456
+        direccion: Pellegrini 2020
+        contrasenia: contraseña
+    PRODUCTOS:
+      title: PRODUCTOS
+      required:
+      - nombre
+      - precio
+      type: object
+      properties: 
+        nombre:
+          type: string
+        precio:
+          type: integer
+      example: 
+        nombre: pizza
+        precio: 320
+       
